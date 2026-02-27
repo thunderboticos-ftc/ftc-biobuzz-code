@@ -14,6 +14,7 @@ public class Cam {
 
     boolean filterInit;
     double valueFiltered;
+    double lastFilter;
     ElapsedTime filterTimer;
     double tau;
 
@@ -30,11 +31,13 @@ public class Cam {
 
     public void valueFilter() {
         // Resets the filter with a velocityValue
-        if(!this.filterInit) {
+        if (!this.filterInit) {
             valueFiltered = getAprilTagDistance();
             this.filterInit = true;
             return;
         }
+        if(getAprilTagDistance() < 0)
+            return;
 
         // Gets the delta time
         double dt = filterTimer.time();
@@ -43,9 +46,17 @@ public class Cam {
         // Gets alpha based on the natural exponential for a
         double alpha = 1 - Math.exp(-(dt / this.tau));
         this.valueFiltered = valueFiltered + alpha * (getAprilTagDistance() - valueFiltered);
+        if(Double.isNaN(this.valueFiltered)) {
+            this.valueFiltered = lastFilter;
+        }
+        lastFilter = valueFiltered;
     }
 
     public Cam(Limelight3A cam) {
+        filterTimer = new ElapsedTime();
+
+        filterTimer.startTime();
+
         this.cam = cam;
         this.launcherDistanceFromCam = 27;
         cam.pipelineSwitch(0);
@@ -75,7 +86,7 @@ public class Cam {
         double ta = results.getTa();
         
         if(!results.isValid())
-            return new double[] {-1, -1, -1};
+            return new double[] {-100, -100, -100};
             
         return new double[] {tx, ty, ta};
     }

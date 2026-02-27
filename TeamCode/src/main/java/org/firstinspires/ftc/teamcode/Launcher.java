@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -12,6 +13,7 @@ public class Launcher {
     // Initialize Variables
     private final DcMotorEx launcherMotor;
     private final DcMotor intakeMotor;
+    private final DcMotor midtakeMotor;
     private final Servo leftServo;
     private final Servo rightServo;
     private final DcMotor led;
@@ -62,10 +64,13 @@ public class Launcher {
     private final ElapsedTime servoTimer;
     private boolean servoMoving;
 
-    public Launcher(DcMotorEx launcherMotor, DcMotor intakeMotor, Servo leftServo, Servo rightServo, DcMotor led) {
+    public boolean blockLed;
+
+    public Launcher(DcMotorEx launcherMotor, DcMotor intakeMotor, DcMotor midtakeMotor, Servo leftServo, Servo rightServo, DcMotor led) {
         // Defines Variables and Constants Values
         this.launcherMotor = launcherMotor;
         this.intakeMotor = intakeMotor;
+        this.midtakeMotor = midtakeMotor;
         this.leftServo = leftServo;
         this.rightServo = rightServo;
         this.led = led;
@@ -120,6 +125,8 @@ public class Launcher {
         this.servoTimer = new ElapsedTime();
         this.servoMoving = false;
 
+        this.blockLed = false;
+
         // Set motors direction
         launcherMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcherMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -129,7 +136,7 @@ public class Launcher {
 
 
         launcherMotor.setDirection(DcMotor.Direction.REVERSE);
-        intakeMotor.setDirection(DcMotor.Direction.REVERSE);
+        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
 
         timer.startTime();
         timerPIDUpdate.startTime();
@@ -182,6 +189,9 @@ public class Launcher {
     public void isReadyToGoLed(double velocityToReach, double errorRange) {
         boolean isReady = isLauncherReadToGo(velocityToReach, errorRange);
 
+        if(blockLed)
+            return;
+
         if(isReady)
             led.setPower(0.6);
         else
@@ -189,7 +199,8 @@ public class Launcher {
     }
 
     public void turnLedOff() {
-        led.setPower(0);
+        if(!blockLed)
+            led.setPower(0);
     }
     
     public double[] getLauncherNeededAngleAndVelocity(double objectiveDistance) {
@@ -216,7 +227,7 @@ public class Launcher {
 
         double vBase = (0.1 + 2.51 * idealVelocity) * 1.04;
 
-        double k = 0.0405*objectiveDistance*objectiveDistance - 0.19175*objectiveDistance + 1.1965;
+        double k = 0.0370 * objectiveDistance * objectiveDistance - 0.2175 * objectiveDistance + 1.2425;
 
         double launcherVelocity = (vBase * k) * 1.01715;
 
@@ -466,7 +477,7 @@ public class Launcher {
 
     public void transportToShooter(boolean move) {
         double startEsq = 0.26;
-        double endEsq = 0.46;
+        double endEsq = 0.5;
 
         double startDir = 0.38;
         double endDir = 0.17;

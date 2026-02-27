@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -10,7 +11,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
+@Configurable
 public class Mapx1 {
+
+    public static double H_P;
+    public static double H_D;
+    public static double X_P;
+    public static double X_D;
+    public static double Y_P;
+    public static double Y_D;
+
 
     RobotMemory robotMemory = RobotMemory.INSTANCE;
 
@@ -38,6 +48,16 @@ public class Mapx1 {
 
     public Mapx1(HardwareMap hardwareMap) {
 
+        H_P = 0;
+        H_D = 0;
+        X_P = 0;
+        X_D = 0;
+        Y_P = 0;
+        Y_D = 0;
+
+
+
+
 
         goingTo = false;
 
@@ -49,7 +69,7 @@ public class Mapx1 {
             follower.setPose(robotMemory.autoFinalPose);
 
         } else {
-            follower.setPose(new Pose(72, 71, 90));
+            follower.setPose(new Pose(72, 72, Math.toRadians(90)));
         }
 
         this.positionInches = new double[] {follower.getPose().getX(), follower.getPose().getY()};
@@ -100,7 +120,7 @@ public class Mapx1 {
         posTargetGoingTo[1] = newPosition[1];
 
 
-        angle = AngleUnit.normalizeDegrees(heading - headingOffset);
+        angle = AngleUnit.normalizeDegrees(Math.toDegrees(heading) - headingOffset);
 
         // Updates the relative position
         if(inMeters) {
@@ -115,16 +135,15 @@ public class Mapx1 {
         // PID values for the y axis
         // P -> 1.3
         // D -> 0.7
-        pidValuesY = RobotHub.movement.PIDUpdate(relativePos[1], posTargetGoingTo[1], 1.3, 0.7, lastErrorYGoingTo, lastIYGoingTo);
+        pidValuesY = RobotHub.movement.PIDUpdate(relativePos[1], posTargetGoingTo[1], 0.1, 0.03, lastErrorYGoingTo, lastIYGoingTo);
         correctionY = pidValuesY[0];
         lastErrorYGoingTo = pidValuesY[1];
         lastIYGoingTo = pidValuesY[2];
 
-
         // PID values for the X axis
         // P -> 1.5
         // D -> 0.1
-        pidValuesX = RobotHub.movement.PIDUpdate(relativePos[0], posTargetGoingTo[0], 1.5, 0.1, lastErrorXGoingTo, lastIXGoingTo);
+        pidValuesX = RobotHub.movement.PIDUpdate(relativePos[0], posTargetGoingTo[0], 0.2, 0.004, lastErrorXGoingTo, lastIXGoingTo);
         correctionX = pidValuesX[0];
         lastErrorXGoingTo = pidValuesX[1];
         lastIXGoingTo = pidValuesY[2];
@@ -143,16 +162,44 @@ public class Mapx1 {
         vxField = correctionX;
         vyField = correctionY;
 
-        vxRobot = vyField * Math.sin(Math.toRadians(-heading)) + vxField * Math.cos(Math.toRadians(-heading));
-        vyRobot = vyField * Math.cos(Math.toRadians(-heading)) - vxField * Math.sin(Math.toRadians(-heading));
-
+        // heading - 90
+        vxRobot = vyField * Math.sin(heading) + vxField * Math.cos(heading);
+        vyRobot = vyField * Math.cos(heading) - vxField * Math.sin(heading);
 
         // Correct the motors
-        RobotHub.movement.runMotors(correctionAngle + vxRobot - vyRobot,
+        RobotHub.movement.runMotors(-correctionAngle + vxRobot - vyRobot,
+                +correctionAngle + vxRobot + vyRobot,
                 -correctionAngle + vxRobot + vyRobot,
-                correctionAngle + vxRobot + vyRobot,
-                -correctionAngle + vxRobot - vyRobot);
+                +correctionAngle + vxRobot - vyRobot);
+    }
 
+    public double getGoalDistance(int side) {
+        // BLUE
+        // X -> 6.32413509060955
+        // Y -> 139.53006589785832
+
+        double[] goalPositionInches;
+        double[] goalPositionMeters;
+
+        if(side == 0) {
+            goalPositionInches = new double[] {0, 144};
+        } else if(side == 1) {
+            goalPositionInches = new double[] {144, 144};
+        } else {
+            goalPositionInches = new double[] {0, 0};
+        }
+
+        goalPositionMeters = new double[] {goalPositionInches[0] / 39.37, goalPositionInches[1] / 39.37};
+
+        double xRobotMeters = positionMeters[0];
+        double yRobotMeters = positionMeters[1];
+
+        double deltaX = Math.abs(goalPositionMeters[0] - xRobotMeters);
+        double deltaY = Math.abs(goalPositionMeters[1] - yRobotMeters);
+
+        double distance = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+
+        return distance;
     }
 }
 

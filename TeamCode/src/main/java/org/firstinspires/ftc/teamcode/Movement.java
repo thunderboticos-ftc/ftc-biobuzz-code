@@ -33,6 +33,11 @@ public class Movement {
     private final ControlHub controlHub;
 
 
+    // Target Angle PID
+    private double lastErrorTargetAngle;
+    private double lastITargetAngle;
+
+
     // Global PIDLockIn Variables
     private final double[] posTargetLockIn;
     
@@ -68,6 +73,10 @@ public class Movement {
         
         this.controlHub = controlHub;
 
+
+        // Initial PID Target Angle Values
+        lastErrorTargetAngle = 0;
+        lastITargetAngle = 0;
         
         // Initial PIDLockIn Values
         posTargetLockIn = new double[2];
@@ -99,22 +108,34 @@ public class Movement {
         resetEncoders();
     }
     
-    public void correctRobotAngleForTarget(double power, double acceptableAngleVariation, Cam cam) {
-        double tx = cam.getAprilTagResults()[0];
-    
-        if(tx == -1) {
-            runMotors(-power, power, -power, power);
+    public void correctRobotAngleForTarget(double power, double acceptableAngleVariation, Cam cam,  Telemetry telemetry) {
+        // Get aprilTag tx value;
+        double txValue = cam.getAprilTagResults()[0];
+
+        if(txValue == -100) {
+            return;
         }
-        
-        if(tx > (acceptableAngleVariation / 2))
-            runMotors(power, -power, power, -power);
-        else if(tx < (acceptableAngleVariation / 2))
-            runMotors(-power, power, -power, power);
-        else {
-            stopMotors();
-        }
-    
-        stopMotors();
+
+        double target = 3.5;
+
+
+        double correctionTargetAngle;
+
+
+        double[] pidValuesTargetAngle;
+
+        pidValuesTargetAngle = PIDUpdate(txValue, target, 0.02, 0.001, lastErrorTargetAngle, lastITargetAngle);
+
+        correctionTargetAngle = pidValuesTargetAngle[0];
+        lastErrorTargetAngle = pidValuesTargetAngle[1];
+        lastITargetAngle = pidValuesTargetAngle[2];
+
+        telemetry.addData("tx", txValue);
+
+        runMotors(-correctionTargetAngle,
+                correctionTargetAngle,
+                -correctionTargetAngle,
+                correctionTargetAngle);
     } 
 
     public void moveByVector(double[] vector, double turn, double power) {

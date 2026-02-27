@@ -24,6 +24,7 @@ public class RobotHub {
     public DcMotorEx motorRightBack;
     public DcMotorEx launcherMotor;
     public DcMotor intakeMotor;
+    public DcMotor midtakeMotor;
     public Servo leftServo;
     public Servo rightServo;
     public Limelight3A limelight;
@@ -68,6 +69,7 @@ public class RobotHub {
 
         launcherMotor = hardwareMap.get(DcMotorEx.class, "launcher");
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        midtakeMotor = hardwareMap.get(DcMotor.class, "midtakeMotor");
 
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
@@ -82,7 +84,7 @@ public class RobotHub {
         controlHub = new ControlHub(imu);
         
         odometry = new Odometry(pinpoint);
-        launcher = new Launcher(launcherMotor, intakeMotor, leftServo, rightServo, led);
+        launcher = new Launcher(launcherMotor, intakeMotor, midtakeMotor, leftServo, rightServo, led);
         movement = new Movement(motorLeftFront, motorRightFront, motorLeftBack, motorRightBack, odometry, controlHub, pinpoint);
 
         instance = this;

@@ -45,7 +45,7 @@ public class Main extends LinearOpMode {
             //gamepadController.absorbUsingGamepad();
             gamepadController.transportBallToLauncher();
             gamepadController.keyStatesUpdate();
-            gamepadController.correctAngleForTargetUsingGamepad();
+            gamepadController.correctAngleForTargetUsingGamepad(telemetry);
             gamepadController.launchUsingGamepadWithoutCam();
             gamepadController.ejectArtefacts();
             gamepadController.changeVelocityUsingGamepad();
@@ -54,15 +54,29 @@ public class Main extends LinearOpMode {
             gamepadController.transportToShooter();
             gamepadController.rumbleOnDangerousAreas(robotMemory.allianceSide, mapx);
             gamepadController.goToEndLocal(robotMemory.allianceSide, mapx);
-
+            gamepadController.launchUsingGamepadWithMapx(robotMemory.allianceSide, mapx);
 
             RobotHub.launcher.updateLauncherVelocityAndRps();
             RobotHub.launcher.verifyLaunches();
             RobotHub.launcher.valueFilter();
 
+            RobotHub.limelightCam.valueFilter();
+
+            telemetry.addData("CamFilter", RobotHub.limelightCam.valueFiltered);
+            telemetry.addData("Cam", RobotHub.limelightCam.getAprilTagDistance());
+            telemetry.addData("DistanceMapx", mapx.getGoalDistance(robotMemory.allianceSide));
+
             RobotHub.pinpoint.update();
 
             mapx.update();
+
+            if(gamepad1.dpad_up) {
+                RobotHub.launcher.blockLed = true;
+                robotHub.led.setPower(1);
+            } else if(gamepad1.dpad_down) {
+                RobotHub.launcher.blockLed = false;
+                robotHub.led.setPower(0);
+            }
 
 
             telemetry.addData("XM", mapx.positionMeters[0]);

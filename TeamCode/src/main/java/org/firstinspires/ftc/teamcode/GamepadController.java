@@ -103,14 +103,6 @@ public class GamepadController {
         double[][] dangerousPositions;
 
         if(side == 0) {
-            // Red side
-
-            dangerousPositions = new double[][] {{141, 65},
-                    {141, 47.5},
-                    {141, 30},
-                    {18.75, 72},
-                    {105.25, 33.25}};
-        } else {
             // Blue side
 
             dangerousPositions = new double[][] {{3, 65},
@@ -118,6 +110,14 @@ public class GamepadController {
                     {3, 30},
                     {125.25, 72},
                     {38.75, 33.25}};
+        } else {
+            // Red Side
+
+            dangerousPositions = new double[][] {{141, 65},
+                    {141, 47.5},
+                    {141, 30},
+                    {18.75, 72},
+                    {91.35, 41.62}};
         }
 
         // Change the robotPos using the spacial position in inches
@@ -162,10 +162,10 @@ public class GamepadController {
         gamepad2.rumble(rumble);
     }
 
-    public void correctAngleForTargetUsingGamepad() {
+    public void correctAngleForTargetUsingGamepad(Telemetry telemetry) {
         double power = gamepad1.left_trigger;
-        if(isB1Pressed) {
-            movement.correctRobotAngleForTarget(power, 0.2, cam);
+        if(gamepad1.y) {
+            movement.correctRobotAngleForTarget(power, 0.2, cam, telemetry);
         }        
     }
     
@@ -179,7 +179,7 @@ public class GamepadController {
         // Normalize to make the y goes up when the stick is going up
         y *= -1;
         
-        if(isA1Pressed)
+        if(isA1Pressed || isB1Pressed)
             return;
         
         movement.moveByVector(new double[] {x, y}, turn, power);
@@ -262,17 +262,19 @@ public class GamepadController {
     public void launchUsingGamepad() {
         // Base variables
         boolean rightBumper = gamepad2.right_bumper;
-        
+
         // Gets the target distance and needed velocity
         double targetDistance = cam.getAprilTagDistance() / 100;
+        cam.tau = 0.1;
+        targetDistance = cam.valueFiltered / 100;
         double neededVelocity = launcher.getLauncherNeededAngleAndVelocity(targetDistance)[0];
         double realVelocity = neededVelocity;
 
         // Do nothing if it conflicts with other method
-        if(gamepad2.right_trigger > 0) {
+        if(gamepad2.right_trigger > 0 || gamepad2.left_bumper) {
             return;
         }
-        
+
         // Sets the launcher to the correct amount of power
         if(rightBumper) {
             if(targetDistance < 0) {
@@ -280,9 +282,10 @@ public class GamepadController {
                 launcher.runLauncher(false);
                 launcher.turnLedOff();
             } else {
-                if(velocityUsing == 0)
-                    velocityUsing = realVelocity;
+                if(velocityUsing == 0) {
+                }
 
+                velocityUsing = realVelocity;
                 launcher.setVelocityPIDFOp(velocityUsing);
                 launcher.isReadyToGoLed(velocityUsing, this.launcherErrorRange);
             }
@@ -292,12 +295,49 @@ public class GamepadController {
             launcher.turnLedOff();
         }
     }
-    
+
+
+    public void launchUsingGamepadWithMapx(int side, Mapx1 mapx) {
+        // Base variables
+        boolean leftBumper = gamepad2.left_bumper;
+
+        // Gets the target distance and needed velocity
+        double targetDistance = mapx.getGoalDistance(side);
+        double neededVelocity = launcher.getLauncherNeededAngleAndVelocity(targetDistance)[0];
+        double realVelocity = neededVelocity;
+
+        // Do nothing if it conflicts with other method
+        if(gamepad2.right_trigger > 0 || gamepad2.right_bumper) {
+            return;
+        }
+
+        // Sets the launcher to the correct amount of power
+        if(leftBumper) {
+            if(targetDistance < 0) {
+                velocityUsing = 0;
+                launcher.runLauncher(false);
+                launcher.turnLedOff();
+            } else {
+                if(velocityUsing == 0) {
+                }
+
+                velocityUsing = realVelocity;
+                launcher.setVelocityPIDFOp(velocityUsing);
+                launcher.isReadyToGoLed(velocityUsing, this.launcherErrorRange);
+            }
+        } else {
+            velocityUsing = 0;
+            launcher.runLauncher(false);
+            launcher.turnLedOff();
+        }
+    }
+
     public void launchUsingGamepadWithoutCam() {
         boolean rightBumper = gamepad2.right_bumper;
+        boolean leftBumper = gamepad2.left_bumper;
         
         // Do not if it conflicts with other method
-        if(rightBumper) {
+        if(rightBumper || leftBumper) {
             return;    
         }
         
@@ -350,16 +390,15 @@ public class GamepadController {
         double goToHeading = 0;
 
         if(side == 0) {
-            goToPos = new double[] {38.444810543657326, 33.39044481054367};
+            goToPos = new double[] {91.34431630971994, 41.62108731466229};
             goToHeading = 0;
 
         } else if(side == 1) {
-            goToPos = new double[] {105.34431630971994, 33.62108731466229};
+            goToPos = new double[] {38.444810543657326, 33.62108731466229};
             goToHeading = 180;
-
         }
 
-        mapx.goToGoal(goToPos, goToHeading, false, gamepad1.b);
+        mapx.goToGoal(goToPos, goToHeading, false, isB1Pressed);
     }
     
     public void keyStatesUpdate() {
@@ -409,8 +448,11 @@ public class GamepadController {
         }
         
         // Verify if b1 is currently being pressed
-        isB1Pressed = gamepad1.bWasPressed();
-        
+        if(gamepad1.bWasPressed()) {
+            isB1Pressed = true;
+        } else if(gamepad1.bWasReleased()) {
+            isB1Pressed = false;
+        }
         
         if(lastLeftBumper1) {
             leftBumper1WasPressed = false;
