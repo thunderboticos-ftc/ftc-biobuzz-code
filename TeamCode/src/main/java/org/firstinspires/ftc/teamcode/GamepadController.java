@@ -93,7 +93,7 @@ public class GamepadController {
 
     }
 
-    public void rumbleOnDangerousAreas(int side, Mapx1 mapx) {
+    public void rumbleOnDangerousAreas(int side, Mapx mapx) {
         // side:
         // 0 -> Red
         // 1 -> Blue
@@ -296,8 +296,15 @@ public class GamepadController {
         }
     }
 
+    public void shootArtefactsUsingGamepad() {
+        if(isB2Pressed || gamepad2.left_trigger > 0) {
+            return;
+        }
 
-    public void launchUsingGamepadWithMapx(int side, Mapx1 mapx) {
+        launcher.shootArtefacts(gamepad2.x);
+    }
+
+    public void launchUsingGamepadWithMapx(int side, Mapx mapx) {
         // Base variables
         boolean leftBumper = gamepad2.left_bumper;
 
@@ -356,14 +363,14 @@ public class GamepadController {
         double power = gamepad2.left_trigger;
         
         // Do nothing if it conflicts if other methods
-        if(isB2Pressed || isA2Pressed) 
+        if(isB2Pressed || isA2Pressed || gamepad2.x)
             return;
         
         // Ejects the artefacts
         if(power > 0) {
-            launcher.runIntake(true, -1);
+            launcher.runIntakeAndMidtake(true, -1);
         } else {
-            launcher.runIntake(false);
+            launcher.runIntakeAndMidtake(false);
         }
     }
     
@@ -374,7 +381,7 @@ public class GamepadController {
 
     public void transportBallToLauncher() {
         // Makes the ball go to the launcher
-        if(isA2Pressed)
+        if(isA2Pressed || gamepad2.x)
             return;
 
         launcher.runToShooter(isB2Pressed);
@@ -385,7 +392,7 @@ public class GamepadController {
         movement.PIDLockInOp(isA1Pressed);
     }
 
-    public void goToEndLocal(int side, Mapx1 mapx) {
+    public void goToEndLocal(int side, Mapx mapx) {
         double[] goToPos = new double[2];
         double goToHeading = 0;
 

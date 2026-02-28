@@ -3,16 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Configurable
-public class Mapx1 {
+public class Mapx {
 
     public static double H_P;
     public static double H_D;
@@ -46,7 +43,7 @@ public class Mapx1 {
     boolean goingTo;
 
 
-    public Mapx1(HardwareMap hardwareMap) {
+    public Mapx(HardwareMap hardwareMap) {
 
         H_P = 0;
         H_D = 0;
@@ -182,9 +179,9 @@ public class Mapx1 {
         double[] goalPositionMeters;
 
         if(side == 0) {
-            goalPositionInches = new double[] {0, 144};
+            goalPositionInches = new double[] {2, 142};
         } else if(side == 1) {
-            goalPositionInches = new double[] {144, 144};
+            goalPositionInches = new double[] {142, 142};
         } else {
             goalPositionInches = new double[] {0, 0};
         }

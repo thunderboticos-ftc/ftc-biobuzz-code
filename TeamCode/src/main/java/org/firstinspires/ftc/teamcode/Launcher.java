@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -65,6 +64,10 @@ public class Launcher {
     private boolean servoMoving;
 
     public boolean blockLed;
+    private final ElapsedTime shootTimer;
+    private final double servoMoveTime;
+    private boolean shooting;
+    public int shootsPerTime;
 
     public Launcher(DcMotorEx launcherMotor, DcMotor intakeMotor, DcMotor midtakeMotor, Servo leftServo, Servo rightServo, DcMotor led) {
         // Defines Variables and Constants Values
@@ -126,6 +129,13 @@ public class Launcher {
         this.servoMoving = false;
 
         this.blockLed = false;
+        this.shootTimer = new ElapsedTime();
+        shootTimer.startTime();
+
+        this.servoMoveTime = 0.175;
+        this.shooting = false;
+
+        this.shootsPerTime = 0;
 
         // Set motors direction
         launcherMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -364,7 +374,42 @@ public class Launcher {
         // Motor correction
         launcherMotor.setPower(feedforward + correction);
     }
-    
+
+    public void setVelocityBasedOnCam(boolean start, Cam cam) {
+
+        // Gets the target distance and needed velocity
+        double targetDistance = cam.getAprilTagDistance() / 100;
+        cam.tau = 0.1;
+        targetDistance = cam.valueFiltered / 100;
+        double neededVelocity = getLauncherNeededAngleAndVelocity(targetDistance)[0];
+        double realVelocity = neededVelocity;
+
+        // Sets the launcher to the correct amount of power
+        if(start) {
+            setVelocityPIDFOp(realVelocity);
+        } else {
+            runLauncher(false);
+        }
+    }
+
+
+    public void setVelocityBasedOnMapx(int side, Mapx mapx, boolean start) {
+
+        // Gets the target distance and needed velocity
+        double targetDistance = mapx.getGoalDistance(side);
+        double neededVelocity = getLauncherNeededAngleAndVelocity(targetDistance)[0];
+        double realVelocity = neededVelocity;
+
+
+        // Sets the launcher to the correct amount of power
+        if(start) {
+            setVelocityPIDFOp(realVelocity);
+        } else {
+            runLauncher(false);
+        }
+    }
+
+
     public void setVelocityPIDF(double defaultVelocity, Cam cam, double seconds, double waitForShooterSeconds, LinearOpMode linearOpMode) {
         double lastError = 0;
         double lastI = 0;
@@ -442,20 +487,44 @@ public class Launcher {
             launcherMotor.setPower(0);
     }
     
-    public void runIntake(boolean start, double power) {
+    public void runIntakeAndMidtake(boolean start, double power) {
         // Run absorber with variable power
         if(start)
             intakeMotor.setPower(power);
         else
             intakeMotor.setPower(0);
     }
-    
-    public void runIntake(boolean start) {
+
+    public void runIntakeAndMidtake(boolean start) {
         // Run absorber with static power
-        if(start)
+        if(start) {
             intakeMotor.setPower(1);
-        else
+            midtakeMotor.setPower(-1);
+        } else {
             intakeMotor.setPower(0);
+            midtakeMotor.setPower(0);
+        }
+    }
+    public void runAllIntake(boolean start) {
+        // Run absorber with static power
+        if(start) {
+            intakeMotor.setPower(1);
+        } else {
+            intakeMotor.setPower(0);
+        }
+    }
+
+    public void runAllIntake(boolean start, boolean usesMidtake) {
+        // Run absorber with static power
+        if(start) {
+            intakeMotor.setPower(1);
+            if(usesMidtake)
+                midtakeMotor.setPower(-1);
+        } else {
+            intakeMotor.setPower(0);
+            if(usesMidtake)
+                midtakeMotor.setPower(0);
+        }
     }
 
     
@@ -463,16 +532,16 @@ public class Launcher {
         updateLauncherVelocityAndRps();
         
         if(launcherLinearVelocity < minVelocityToLaunch) {
-            runIntake(false);
+            runIntakeAndMidtake(false);
             
             return;
         }
 
-        runIntake(start);
+        runIntakeAndMidtake(start);
     }
     
     public void runToTransporter(boolean start) {
-        runIntake(start);
+        runIntakeAndMidtake(start);
     }
 
     public void transportToShooter(boolean move) {
@@ -491,7 +560,7 @@ public class Launcher {
             leftServo.setPosition(endEsq);
             rightServo.setPosition(endDir);
 
-            if(servoTimer.time() > 0.175) {
+            if(servoTimer.time() > this.servoMoveTime) {
                 this.servoMoving = false;
 
                 leftServo.setPosition(startEsq);
@@ -501,6 +570,77 @@ public class Launcher {
         } else {
             leftServo.setPosition(startEsq);
             rightServo.setPosition(startDir);
+        }
+    }
+
+    public void shootArtefacts(boolean shoot) {
+        if(!shoot) {
+            midtakeMotor.setPower(0);
+            this.shootsPerTime = 0;
+        }
+
+        if(!shoot && this.shooting) {
+            transportToShooter(false);
+            this.shooting = false;
+        }
+
+        if(shoot && !this.shooting) {
+            this.shooting = true;
+            shootTimer.reset();
+            midtakeMotor.setPower(-1);
+        }
+
+        if(this.shooting) {
+            if(shootTimer.time() > this.servoMoveTime * 2.2 || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 1.5)) {
+                shootTimer.reset();
+                this.shootsPerTime++;
+                transportToShooter(true);
+                midtakeMotor.setPower(-1);
+            } else {
+                transportToShooter(false);
+                if(this.shootsPerTime == 0) {
+                    midtakeMotor.setPower(-1);
+                    runAllIntake(false, false);
+                } else {
+                    midtakeMotor.setPower(1);
+                    runAllIntake(true, false);
+                }
+            }
+        }
+    }
+    public void shootArtefacts(boolean shoot, double kT) {
+        if(!shoot) {
+            midtakeMotor.setPower(0);
+            this.shootsPerTime = 0;
+        }
+
+        if(!shoot && this.shooting) {
+            transportToShooter(false);
+            this.shooting = false;
+        }
+
+        if(shoot && !this.shooting) {
+            this.shooting = true;
+            shootTimer.reset();
+            midtakeMotor.setPower(-1);
+        }
+
+        if(this.shooting) {
+            if(shootTimer.time() > this.servoMoveTime * kT || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 1.5)) {
+                shootTimer.reset();
+                this.shootsPerTime++;
+                transportToShooter(true);
+                midtakeMotor.setPower(-1);
+            } else {
+                transportToShooter(false);
+                if(this.shootsPerTime == 0) {
+                    midtakeMotor.setPower(-1);
+                    runAllIntake(false, false);
+                } else {
+                    midtakeMotor.setPower(1);
+                    runAllIntake(true, false);
+                }
+            }
         }
     }
 }
