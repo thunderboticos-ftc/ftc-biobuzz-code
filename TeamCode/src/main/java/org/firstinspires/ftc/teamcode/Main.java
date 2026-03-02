@@ -10,6 +10,8 @@ public class Main extends LinearOpMode {
     
     double[] initialPos;
     double initialAngle;
+
+    int allianceSide;
     
     RobotHub robotHub;
     RobotMemory robotMemory;
@@ -29,6 +31,8 @@ public class Main extends LinearOpMode {
 
         mapx = new Mapx(hardwareMap);
         robotMemory = RobotMemory.INSTANCE;
+        allianceSide = robotMemory.allianceSide;
+        robotMemory.allianceSide = 0;
         robotMemory.autoFinalPose = null;
 
         gamepadController = new GamepadController(gamepad1, gamepad2, RobotHub.movement, RobotHub.launcher, RobotHub.limelightCam);
@@ -51,9 +55,9 @@ public class Main extends LinearOpMode {
             gamepadController.lockPosition();
             gamepadController.changeLauncherVelocityUsingGamepad();
             gamepadController.transportToShooter();
-            gamepadController.rumbleOnDangerousAreas(robotMemory.allianceSide, mapx);
-            gamepadController.goToEndLocal(robotMemory.allianceSide, mapx);
-            gamepadController.launchUsingGamepadWithMapx(robotMemory.allianceSide, mapx);
+            gamepadController.rumbleOnDangerousAreas(allianceSide, mapx);
+            gamepadController.goToEndLocal(allianceSide, mapx);
+            gamepadController.launchUsingGamepadWithMapx(allianceSide, mapx);
             gamepadController.shootArtefactsUsingGamepad();
 
             RobotHub.launcher.updateLauncherVelocityAndRps();

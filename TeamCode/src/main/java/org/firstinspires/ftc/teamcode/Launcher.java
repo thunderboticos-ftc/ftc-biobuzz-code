@@ -527,6 +527,19 @@ public class Launcher {
         }
     }
 
+    public void runAllIntake(boolean start, boolean usesMidtake, double intakePower) {
+        // Run absorber with static power
+        if(start) {
+            intakeMotor.setPower(intakePower);
+            if(usesMidtake)
+                midtakeMotor.setPower(-1);
+        } else {
+            intakeMotor.setPower(0);
+            if(usesMidtake)
+                midtakeMotor.setPower(0);
+        }
+    }
+
     
     public void runToShooter(boolean start) {
         updateLauncherVelocityAndRps();
@@ -591,7 +604,7 @@ public class Launcher {
         }
 
         if(this.shooting) {
-            if(shootTimer.time() > this.servoMoveTime * 2.2 || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 1.5)) {
+            if(shootTimer.time() > this.servoMoveTime * 2.8 || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 2)) {
                 shootTimer.reset();
                 this.shootsPerTime++;
                 transportToShooter(true);
@@ -603,7 +616,7 @@ public class Launcher {
                     runAllIntake(false, false);
                 } else {
                     midtakeMotor.setPower(1);
-                    runAllIntake(true, false);
+                    runAllIntake(true, false, 0.6);
                 }
             }
         }
@@ -626,7 +639,7 @@ public class Launcher {
         }
 
         if(this.shooting) {
-            if(shootTimer.time() > this.servoMoveTime * kT || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 1.5)) {
+            if(shootTimer.time() > this.servoMoveTime * kT || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 2)) {
                 shootTimer.reset();
                 this.shootsPerTime++;
                 transportToShooter(true);
