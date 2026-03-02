@@ -49,14 +49,14 @@ public class BlueAutonomousCloseMain extends OpMode {
 
 
 
-    private final Pose startPose = new Pose(22.1, 126.9, Math.toRadians(149));
+    private final Pose startPose = new Pose(22.1, 126.7, Math.toRadians(149));
     private final Pose shootPose = new Pose(49, 93, Math.toRadians(140.5));
     private final Pose startFirstCollect = new Pose(53, 92, Math.toRadians(180));
     private final Pose endFirstCollect = new Pose(21, 92, Math.toRadians(180));
     private final Pose startSecondCollect = new Pose(53, 63, Math.toRadians(185)); // y -> 66
-    private final Pose endSecondCollect = new Pose(15, 63, Math.toRadians(185)); // y -> 66
+    private final Pose endSecondCollect = new Pose(14.5, 63, Math.toRadians(185)); // y -> 66
     private final Pose startThirtyCollect = new Pose(53, 40, Math.toRadians(180));
-    private final Pose endThirtyCollect = new Pose(15, 40, Math.toRadians(180));
+    private final Pose endThirtyCollect = new Pose(16, 40, Math.toRadians(180));
     private final Pose finalPos = new Pose(50, 72, Math.toRadians(135));
 
 
@@ -186,7 +186,7 @@ public class BlueAutonomousCloseMain extends OpMode {
                     }
 
 
-                    if(RobotHub.launcher.shootsPerTime >= 4) {
+                    if(RobotHub.launcher.shootsPerTime >= 5) {
                         RobotHub.launcher.shootArtefacts(false);
                         RobotHub.launcher.transportToShooter(false);
 
