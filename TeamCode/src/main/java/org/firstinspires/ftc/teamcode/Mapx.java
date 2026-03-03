@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -8,16 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
-@Configurable
 public class Mapx {
-
-    public static double H_P;
-    public static double H_D;
-    public static double X_P;
-    public static double X_D;
-    public static double Y_P;
-    public static double Y_D;
-
 
     RobotMemory robotMemory = RobotMemory.INSTANCE;
 
@@ -44,17 +34,6 @@ public class Mapx {
 
 
     public Mapx(HardwareMap hardwareMap) {
-
-        H_P = 0;
-        H_D = 0;
-        X_P = 0;
-        X_D = 0;
-        Y_P = 0;
-        Y_D = 0;
-
-
-
-
 
         goingTo = false;
 
@@ -86,7 +65,7 @@ public class Mapx {
     }
 
     public void goToGoal(double[] newPosition, double newHeading, boolean inMeters, boolean started) {
-        // Verify if its needed to lock in
+        // Verify if its needed to go
         if(!started) {
             goingTo = false;
             return;
@@ -109,7 +88,7 @@ public class Mapx {
 
         double[] posTargetGoingTo = new double[2];
 
-        // Gets the first position when locked
+        // Gets the target position
         double headingOffset = newHeading;
         double goingToAngle = 0;
 
@@ -130,16 +109,16 @@ public class Mapx {
 
 
         // PID values for the y axis
-        // P -> 1.3
-        // D -> 0.7
+        // P -> 0.1
+        // D -> 0.03
         pidValuesY = RobotHub.movement.PIDUpdate(relativePos[1], posTargetGoingTo[1], 0.1, 0.03, lastErrorYGoingTo, lastIYGoingTo);
         correctionY = pidValuesY[0];
         lastErrorYGoingTo = pidValuesY[1];
         lastIYGoingTo = pidValuesY[2];
 
         // PID values for the X axis
-        // P -> 1.5
-        // D -> 0.1
+        // P -> 0.2
+        // D -> 0.004
         pidValuesX = RobotHub.movement.PIDUpdate(relativePos[0], posTargetGoingTo[0], 0.2, 0.004, lastErrorXGoingTo, lastIXGoingTo);
         correctionX = pidValuesX[0];
         lastErrorXGoingTo = pidValuesX[1];
@@ -171,9 +150,8 @@ public class Mapx {
     }
 
     public double getGoalDistance(int side) {
-        // BLUE
-        // X -> 6.32413509060955
-        // Y -> 139.53006589785832
+        // BLUE -> 0
+        // RED -> 1
 
         double[] goalPositionInches;
         double[] goalPositionMeters;
@@ -181,7 +159,7 @@ public class Mapx {
         if(side == 0) {
             goalPositionInches = new double[] {1.75, 142.75};
         } else if(side == 1) {
-            goalPositionInches = new double[] {142, 142};
+            goalPositionInches = new double[] {142.25, 142.75};
         } else {
             goalPositionInches = new double[] {0, 0};
         }

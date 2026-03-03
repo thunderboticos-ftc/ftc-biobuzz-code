@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous
-public class BlueAutonomousCloseMain extends OpMode {
+public class RedAutonomousCloseMain extends OpMode {
 
     private double timeForShoot;
 
@@ -49,15 +49,15 @@ public class BlueAutonomousCloseMain extends OpMode {
 
 
 
-    private final Pose startPose = new Pose(22.1, 126.7, Math.toRadians(149));
-    private final Pose shootPose = new Pose(49, 93, Math.toRadians(140.5));
-    private final Pose startFirstCollect = new Pose(53, 92, Math.toRadians(180));
-    private final Pose endFirstCollect = new Pose(21, 92, Math.toRadians(180));
-    private final Pose startSecondCollect = new Pose(53, 63, Math.toRadians(185));
-    private final Pose endSecondCollect = new Pose(14.5, 63, Math.toRadians(185));
-    private final Pose startThirtyCollect = new Pose(53, 40, Math.toRadians(180));
-    private final Pose endThirtyCollect = new Pose(16, 40, Math.toRadians(180));
-    private final Pose finalPos = new Pose(50, 72, Math.toRadians(135));
+    private final Pose startPose = new Pose(121.9, 126.7, Math.toRadians(31));
+    private final Pose shootPose = new Pose(95, 93, Math.toRadians(39.5));
+    private final Pose startFirstCollect = new Pose(91, 92, Math.toRadians(0));
+    private final Pose endFirstCollect = new Pose(123, 92, Math.toRadians(0));
+    private final Pose startSecondCollect = new Pose(91, 63, Math.toRadians(-5));
+    private final Pose endSecondCollect = new Pose(129.5, 63, Math.toRadians(-5));
+    private final Pose startThirtyCollect = new Pose(91, 40, Math.toRadians(0));
+    private final Pose endThirtyCollect = new Pose(128, 40, Math.toRadians(0));
+    private final Pose finalPos = new Pose(94, 72, Math.toRadians(45));
 
 
 

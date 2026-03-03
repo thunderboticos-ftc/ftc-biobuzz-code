@@ -397,12 +397,12 @@ public class GamepadController {
         double goToHeading = 0;
 
         if(side == 0) {
-            goToPos = new double[] {91.34431630971994, 41.62108731466229};
-            goToHeading = 0;
+            goToPos = new double[] {95.35, 43.6};
+            goToHeading = 180;
 
         } else if(side == 1) {
-            goToPos = new double[] {38.444810543657326, 33.62108731466229};
-            goToHeading = 180;
+            goToPos = new double[] {48.65, 43.6};
+            goToHeading = 0;
         }
 
         mapx.goToGoal(goToPos, goToHeading, false, isB1Pressed);

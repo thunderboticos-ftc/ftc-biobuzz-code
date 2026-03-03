@@ -13,16 +13,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@Configurable
 public class Movement {
     // Variables Initialization
 
-    public static double X_P;
-    public static double X_D;
-    public static double Y_P;
-    public static double Y_D;
-    public static double H_P;
-    public static double H_D;
 
     // HardwareMap
     private final DcMotorEx motorLeftFront;
