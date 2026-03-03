@@ -345,7 +345,7 @@ public class GamepadController {
         
         // Do not if it conflicts with other method
         if(rightBumper || leftBumper) {
-            return;    
+            return;
         }
         
         // Do the launch with a static velocity if the trigger is pressed
@@ -397,11 +397,11 @@ public class GamepadController {
         double goToHeading = 0;
 
         if(side == 0) {
-            goToPos = new double[] {95.35, 43.6};
-            goToHeading = 180;
+            goToPos = new double[] {108.5, 43.6};
+            goToHeading = 182.5;
 
         } else if(side == 1) {
-            goToPos = new double[] {48.65, 43.6};
+            goToPos = new double[] {40, 45.6};
             goToHeading = 0;
         }
 

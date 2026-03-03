@@ -50,13 +50,13 @@ public class BlueAutonomousCloseMain extends OpMode {
 
 
     private final Pose startPose = new Pose(22.1, 126.7, Math.toRadians(149));
-    private final Pose shootPose = new Pose(49, 93, Math.toRadians(140.5));
-    private final Pose startFirstCollect = new Pose(53, 92, Math.toRadians(180));
-    private final Pose endFirstCollect = new Pose(21, 92, Math.toRadians(180));
+    private final Pose shootPose = new Pose(49, 93, Math.toRadians(140));
+    private final Pose startFirstCollect = new Pose(53, 90, Math.toRadians(180));
+    private final Pose endFirstCollect = new Pose(21, 90, Math.toRadians(180));
     private final Pose startSecondCollect = new Pose(53, 63, Math.toRadians(185));
-    private final Pose endSecondCollect = new Pose(14.5, 63, Math.toRadians(185));
-    private final Pose startThirtyCollect = new Pose(53, 40, Math.toRadians(180));
-    private final Pose endThirtyCollect = new Pose(16, 40, Math.toRadians(180));
+    private final Pose endSecondCollect = new Pose(15, 63, Math.toRadians(185));
+    private final Pose startThirtyCollect = new Pose(53, 41, Math.toRadians(180));
+    private final Pose endThirtyCollect = new Pose(16, 41, Math.toRadians(180));
     private final Pose finalPos = new Pose(50, 72, Math.toRadians(135));
 
 
@@ -203,7 +203,7 @@ public class BlueAutonomousCloseMain extends OpMode {
                                 break;
 
                             case 3:
-                                follower.followPath(shootPosToStartThirtyCollectPos, false);
+                                follower.followPath(shootPosToStartThirtyCollectPos, 0.8, false);
                                 setPathState(PathState.START_THIRTY_COLLECT_TO_END_THIRTY_COLLECT);
                                 break;
 
@@ -337,7 +337,7 @@ public class BlueAutonomousCloseMain extends OpMode {
     public void start() {
         opModeTimer.resetTimer();
         setPathState(pathState);
-        robotMemory.allianceSide = 1;
+        robotMemory.allianceSide = 0;
     }
 
     @Override
