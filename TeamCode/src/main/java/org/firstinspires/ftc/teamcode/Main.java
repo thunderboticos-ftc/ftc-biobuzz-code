@@ -29,6 +29,8 @@ public class Main extends LinearOpMode {
         RobotHub.reset();
         robotHub = RobotHub.getInstance(hardwareMap);
 
+        robotHub.led.setState(false);
+
         mapx = new Mapx(hardwareMap);
         robotMemory = RobotMemory.INSTANCE;
         allianceSide = robotMemory.allianceSide;
@@ -68,19 +70,12 @@ public class Main extends LinearOpMode {
 
             telemetry.addData("CamFilter", RobotHub.limelightCam.valueFiltered);
             telemetry.addData("Cam", RobotHub.limelightCam.getAprilTagDistance());
-            telemetry.addData("DistanceMapx", mapx.getGoalDistance(robotMemory.allianceSide));
+            telemetry.addData("DistanceMapx", mapx.getGoalDistance(allianceSide));
+            telemetry.addData("Alliance", allianceSide);
 
             RobotHub.pinpoint.update();
 
             mapx.update();
-
-            if(gamepad1.dpad_up) {
-                RobotHub.launcher.blockLed = true;
-                robotHub.led.setPower(1);
-            } else if(gamepad1.dpad_down) {
-                RobotHub.launcher.blockLed = false;
-                robotHub.led.setPower(0);
-            }
 
 
             telemetry.addData("XM", mapx.positionMeters[0]);

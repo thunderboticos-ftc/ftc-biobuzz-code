@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -28,7 +29,7 @@ public class RobotHub {
     public Servo leftServo;
     public Servo rightServo;
     public Limelight3A limelight;
-    public DcMotor led;
+    public DigitalChannel led;
     public static GoBildaPinpointDriver pinpoint;
 
     // Classes
@@ -74,8 +75,10 @@ public class RobotHub {
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
 
-        led = hardwareMap.get(DcMotor.class, "led");
-        
+        led = hardwareMap.get(DigitalChannel.class, "led");
+
+        led.setMode(DigitalChannel.Mode.OUTPUT);
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
 

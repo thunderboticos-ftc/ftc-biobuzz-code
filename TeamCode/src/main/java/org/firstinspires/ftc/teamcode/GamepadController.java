@@ -350,6 +350,8 @@ public class GamepadController {
         
         // Do the launch with a static velocity if the trigger is pressed
         if(gamepad2.right_trigger > 0) {
+            this.launcherVelocity = 13.2;
+
             launcher.setVelocityPIDFOp(this.launcherVelocity);
             launcher.isReadyToGoLed(this.launcherVelocity, this.launcherErrorRange);
         } else {
@@ -397,11 +399,11 @@ public class GamepadController {
         double goToHeading = 0;
 
         if(side == 0) {
-            goToPos = new double[] {108.5, 43.6};
-            goToHeading = 182.5;
+            goToPos = new double[] {107.34431630971994, 45.38385502471168};
+            goToHeading = 180;
 
         } else if(side == 1) {
-            goToPos = new double[] {40, 45.6};
+            goToPos = new double[] {38.682042833607916, 38.38385502471168};
             goToHeading = 0;
         }
 

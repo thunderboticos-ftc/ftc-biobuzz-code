@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 @Autonomous
-public class BlueAutonomousCloseMain extends OpMode {
+public class BlueAutonomous3CyclesCloseMain extends OpMode {
 
     private double timeForShoot;
 
@@ -49,15 +49,16 @@ public class BlueAutonomousCloseMain extends OpMode {
 
 
 
-    private final Pose startPose = new Pose(22.1, 126.7, Math.toRadians(149)); // 22.1    126.7
-    private final Pose shootPose = new Pose(49, 93, Math.toRadians(138.575));
+    private final Pose startPose = new Pose(22.1, 126.7, Math.toRadians(149));
+    private final Pose shootPose = new Pose(49, 93, Math.toRadians(140));
     private final Pose startFirstCollect = new Pose(53, 90, Math.toRadians(180));
     private final Pose endFirstCollect = new Pose(21, 90, Math.toRadians(180)); // 90
-    private final Pose startSecondCollect = new Pose(55, 61.6, Math.toRadians(185)); // 63
-    private final Pose endSecondCollect = new Pose(16, 61.6, Math.toRadians(185));
-    private final Pose startThirtyCollect = new Pose(53, 41.5, Math.toRadians(180)); // 41
-    private final Pose endThirtyCollect = new Pose(16, 41.5, Math.toRadians(180));
+    private final Pose startSecondCollect = new Pose(53, 63, Math.toRadians(185)); // 63
+    private final Pose endSecondCollect = new Pose(15, 63, Math.toRadians(185));
+    private final Pose startThirtyCollect = new Pose(53, 41, Math.toRadians(180)); // 41
+    private final Pose endThirtyCollect = new Pose(16, 41, Math.toRadians(180));
     private final Pose finalPos = new Pose(50, 72, Math.toRadians(135));
+
 
 
 
@@ -69,9 +70,6 @@ public class BlueAutonomousCloseMain extends OpMode {
     private PathChain startSecondCollectPosToEndSecondCollectPos;
     private PathChain endSecondCollectPosToStartSecondCollectPos;
     private PathChain startSecondCollectPosToShootPos;
-    private PathChain shootPosToStartThirtyCollectPos;
-    private PathChain startThirtyCollectPosToEndThirtyCollectPos;
-    private PathChain endThirtyCollectPosToShootPos;
     private PathChain shootPosToFinalPos;
 
 
@@ -118,21 +116,6 @@ public class BlueAutonomousCloseMain extends OpMode {
                 .setLinearHeadingInterpolation(startSecondCollect.getHeading(), shootPose.getHeading())
                 .build();
 
-        shootPosToStartThirtyCollectPos = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, startThirtyCollect))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), startThirtyCollect.getHeading())
-                .build();
-
-        startThirtyCollectPosToEndThirtyCollectPos = follower.pathBuilder()
-                .addPath(new BezierLine(startThirtyCollect, endThirtyCollect))
-                .setLinearHeadingInterpolation(startThirtyCollect.getHeading(), endThirtyCollect.getHeading())
-                .build();
-
-        endThirtyCollectPosToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(endThirtyCollect, shootPose))
-                .setLinearHeadingInterpolation(endThirtyCollect.getHeading(), shootPose.getHeading())
-                .build();
-
         shootPosToFinalPos = follower.pathBuilder()
                 .addPath(new BezierLine(shootPose, finalPos))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), finalPos.getHeading())
@@ -164,7 +147,7 @@ public class BlueAutonomousCloseMain extends OpMode {
 
                     switch(cycle) {
                         case 0:
-                            timeForShoot = 2;
+                            timeForShoot = 3;
                             break;
 
                         case 1:
@@ -182,7 +165,7 @@ public class BlueAutonomousCloseMain extends OpMode {
                     }
 
                     if (waitForShoot.getElapsedTimeSeconds() > timeForShoot) {
-                        RobotHub.launcher.shootArtefacts(true, 2.6);
+                        RobotHub.launcher.shootArtefacts(true, 2.2);
                     }
 
 
@@ -203,11 +186,6 @@ public class BlueAutonomousCloseMain extends OpMode {
                                 break;
 
                             case 3:
-                                follower.followPath(shootPosToStartThirtyCollectPos, false);
-                                setPathState(PathState.START_THIRTY_COLLECT_TO_END_THIRTY_COLLECT);
-                                break;
-
-                            case 4:
                                 follower.followPath(shootPosToFinalPos, false);
                                 break;
 
@@ -243,7 +221,7 @@ public class BlueAutonomousCloseMain extends OpMode {
                 RobotHub.launcher.transportToShooter(false);
                 RobotHub.launcher.runAllIntake(true);
                 if(!follower.isBusy()) {
-                    follower.followPath(startSecondCollectPosToEndSecondCollectPos, 0.6, false);
+                    follower.followPath(startSecondCollectPosToEndSecondCollectPos, 0.7, false);
                     setPathState(PathState.END_SECOND_COLLECT_TO_START_SECOND_COLLECT);
                 }
 
@@ -264,27 +242,6 @@ public class BlueAutonomousCloseMain extends OpMode {
                 RobotHub.launcher.runAllIntake(true);
                 if(!follower.isBusy()) {
                     follower.followPath(startSecondCollectPosToShootPos, 1, true);
-                    setPathState(PathState.SHOOT_PRELOAD);
-                    waitForShoot.resetTimer();
-                }
-
-                break;
-
-            case START_THIRTY_COLLECT_TO_END_THIRTY_COLLECT:
-                RobotHub.launcher.transportToShooter(false);
-                RobotHub.launcher.runAllIntake(true);
-                if(!follower.isBusy()) {
-                    follower.followPath(startThirtyCollectPosToEndThirtyCollectPos, 1, false);
-                    setPathState(PathState.END_THIRTY_COLLECT_TO_SHOOT_POS);
-                }
-
-                break;
-
-            case END_THIRTY_COLLECT_TO_SHOOT_POS:
-                RobotHub.launcher.transportToShooter(false);
-                RobotHub.launcher.runAllIntake(true);
-                if(!follower.isBusy()) {
-                    follower.followPath(endThirtyCollectPosToShootPos, true);
                     setPathState(PathState.SHOOT_PRELOAD);
                     waitForShoot.resetTimer();
                 }

@@ -58,7 +58,7 @@ public class Cam {
         filterTimer.startTime();
 
         this.cam = cam;
-        this.launcherDistanceFromCam = 27;
+        this.launcherDistanceFromCam = 30;
         cam.pipelineSwitch(0);
         cam.start();
     }

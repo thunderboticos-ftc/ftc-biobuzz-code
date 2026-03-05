@@ -49,15 +49,15 @@ public class RedAutonomousCloseMain extends OpMode {
 
 
 
-    private final Pose startPose = new Pose(121.9, 126.7, Math.toRadians(37));
-    private final Pose shootPose = new Pose(95, 93, Math.toRadians(40));
+    private final Pose startPose = new Pose(119.6, 126.65, Math.toRadians(37));
+    private final Pose shootPose = new Pose(95, 93, Math.toRadians(43));
     private final Pose startFirstCollect = new Pose(91, 88, Math.toRadians(0));
-    private final Pose endFirstCollect = new Pose(123, 88, Math.toRadians(0));
-    private final Pose startSecondCollect = new Pose(91, 61, Math.toRadians(-5));
-    private final Pose endSecondCollect = new Pose(129.5, 61, Math.toRadians(-5));
-    private final Pose startThirtyCollect = new Pose(91, 41, Math.toRadians(0));
+    private final Pose endFirstCollect = new Pose(123, 88, Math.toRadians(0)); // 90
+    private final Pose startSecondCollect = new Pose(91, 63, Math.toRadians(-5)); // 63
+    private final Pose endSecondCollect = new Pose(129, 63, Math.toRadians(-5));
+    private final Pose startThirtyCollect = new Pose(88, 41, Math.toRadians(0)); // 41
     private final Pose endThirtyCollect = new Pose(128, 41, Math.toRadians(0));
-    private final Pose finalPos = new Pose(94, 72, Math.toRadians(45));
+    private final Pose finalPos = new Pose(94, 72, Math.toRadians(-45));
 
 
 
@@ -164,7 +164,7 @@ public class RedAutonomousCloseMain extends OpMode {
 
                     switch(cycle) {
                         case 0:
-                            timeForShoot = 3;
+                            timeForShoot = 2;
                             break;
 
                         case 1:
@@ -182,7 +182,7 @@ public class RedAutonomousCloseMain extends OpMode {
                     }
 
                     if (waitForShoot.getElapsedTimeSeconds() > timeForShoot) {
-                        RobotHub.launcher.shootArtefacts(true, 2.2);
+                        RobotHub.launcher.shootArtefacts(true, 2.8);
                     }
 
 
@@ -350,7 +350,7 @@ public class RedAutonomousCloseMain extends OpMode {
         //RobotHub.launcher.setVelocityPIDFOp(12.47);
         RobotHub.limelightCam.valueFilter();
 
-        RobotHub.launcher.setVelocityBasedOnMapx(1, mapx, true);
+        RobotHub.launcher.setVelocityBasedOnMapx(1, mapx, true, telemetry);
 
         //RobotHub.launcher.setVelocityBasedOnCam(true, RobotHub.limelightCam);
 

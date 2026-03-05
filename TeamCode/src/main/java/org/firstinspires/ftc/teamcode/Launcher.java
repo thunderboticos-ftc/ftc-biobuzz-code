@@ -1,21 +1,28 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+
+@Configurable
 public class Launcher {
+
     // Initialize Variables
     private final DcMotorEx launcherMotor;
     private final DcMotor intakeMotor;
     private final DcMotor midtakeMotor;
     private final Servo leftServo;
     private final Servo rightServo;
-    private final DcMotor led;
+    private final DigitalChannel led;
     
     // Launching constants
     private final double gravity;
@@ -69,7 +76,7 @@ public class Launcher {
     private boolean shooting;
     public int shootsPerTime;
 
-    public Launcher(DcMotorEx launcherMotor, DcMotor intakeMotor, DcMotor midtakeMotor, Servo leftServo, Servo rightServo, DcMotor led) {
+    public Launcher(DcMotorEx launcherMotor, DcMotor intakeMotor, DcMotor midtakeMotor, Servo leftServo, Servo rightServo, DigitalChannel led) {
         // Defines Variables and Constants Values
         this.launcherMotor = launcherMotor;
         this.intakeMotor = intakeMotor;
@@ -203,14 +210,14 @@ public class Launcher {
             return;
 
         if(isReady)
-            led.setPower(0.6);
+            led.setState(true);
         else
             turnLedOff();
     }
 
     public void turnLedOff() {
         if(!blockLed)
-            led.setPower(0);
+            led.setState(false);
     }
     
     public double[] getLauncherNeededAngleAndVelocity(double objectiveDistance) {
@@ -370,7 +377,6 @@ public class Launcher {
         lastError = pidValues[1];
         lastI = pidValues[2];
 
-
         // Motor correction
         launcherMotor.setPower(feedforward + correction);
     }
@@ -393,13 +399,14 @@ public class Launcher {
     }
 
 
-    public void setVelocityBasedOnMapx(int side, Mapx mapx, boolean start) {
+    public void setVelocityBasedOnMapx(int side, Mapx mapx, boolean start, Telemetry telemetry) {
 
         // Gets the target distance and needed velocity
         double targetDistance = mapx.getGoalDistance(side);
         double neededVelocity = getLauncherNeededAngleAndVelocity(targetDistance)[0];
         double realVelocity = neededVelocity;
 
+        telemetry.addData("Vel", realVelocity);
 
         // Sets the launcher to the correct amount of power
         if(start) {
@@ -559,10 +566,10 @@ public class Launcher {
 
     public void transportToShooter(boolean move) {
         double startEsq = 0.26;
-        double endEsq = 0.5;
+        double endEsq = 0.58;
 
-        double startDir = 0.38;
-        double endDir = 0.17;
+        double startDir = 0.3;
+        double endDir = 0.01;
 
         if(move && !servoMoving) {
             servoMoving = true;
@@ -604,19 +611,20 @@ public class Launcher {
         }
 
         if(this.shooting) {
-            if(shootTimer.time() > this.servoMoveTime * 2.8 || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 2)) {
+            if(shootTimer.time() > this.servoMoveTime * 3.2 || (shootsPerTime == 0 && shootTimer.time() > this.servoMoveTime * 2)) {
                 shootTimer.reset();
                 this.shootsPerTime++;
                 transportToShooter(true);
                 midtakeMotor.setPower(-1);
+                intakeMotor.setPower(0.15);
             } else {
                 transportToShooter(false);
                 if(this.shootsPerTime == 0) {
-                    midtakeMotor.setPower(-1);
-                    runAllIntake(false, false);
+                    midtakeMotor.setPower(-0.5);
+                    intakeMotor.setPower(0);
                 } else {
-                    midtakeMotor.setPower(1);
-                    runAllIntake(true, false, 0.6);
+                    midtakeMotor.setPower(0.5);
+                    intakeMotor.setPower(0.5);
                 }
             }
         }
@@ -644,14 +652,15 @@ public class Launcher {
                 this.shootsPerTime++;
                 transportToShooter(true);
                 midtakeMotor.setPower(-1);
+                intakeMotor.setPower(1);
             } else {
                 transportToShooter(false);
                 if(this.shootsPerTime == 0) {
                     midtakeMotor.setPower(-1);
-                    runAllIntake(false, false);
+                    intakeMotor.setPower(0);
                 } else {
                     midtakeMotor.setPower(1);
-                    runAllIntake(true, false);
+                    intakeMotor.setPower(1);
                 }
             }
         }
