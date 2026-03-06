@@ -157,11 +157,11 @@ public class Mapx {
         double[] goalPositionMeters;
 
         if(side == 0) {
-            goalPositionInches = new double[] {6, 136};
-        } else if(side == 1) {
-            goalPositionInches = new double[] {136, 136};
+            goalPositionInches = new double[]{6, 136};
+        } else if (side == 1) {
+            goalPositionInches = new double[]{138, 136};
         } else {
-            goalPositionInches = new double[] {0, 0};
+            goalPositionInches = new double[]{0, 0};
         }
 
         goalPositionMeters = new double[] {goalPositionInches[0] / 39.37, goalPositionInches[1] / 39.37};

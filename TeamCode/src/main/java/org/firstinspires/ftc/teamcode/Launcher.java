@@ -22,7 +22,7 @@ public class Launcher {
     private final DcMotor midtakeMotor;
     private final Servo leftServo;
     private final Servo rightServo;
-    private final DigitalChannel led;
+    private final DcMotor led;
     
     // Launching constants
     private final double gravity;
@@ -75,8 +75,9 @@ public class Launcher {
     private final double servoMoveTime;
     private boolean shooting;
     public int shootsPerTime;
+    private double lastFilter;
 
-    public Launcher(DcMotorEx launcherMotor, DcMotor intakeMotor, DcMotor midtakeMotor, Servo leftServo, Servo rightServo, DigitalChannel led) {
+    public Launcher(DcMotorEx launcherMotor, DcMotor intakeMotor, DcMotor midtakeMotor, Servo leftServo, Servo rightServo, DcMotor led) {
         // Defines Variables and Constants Values
         this.launcherMotor = launcherMotor;
         this.intakeMotor = intakeMotor;
@@ -144,6 +145,8 @@ public class Launcher {
 
         this.shootsPerTime = 0;
 
+        this.lastFilter = 0;
+
         // Set motors direction
         launcherMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         launcherMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -210,14 +213,14 @@ public class Launcher {
             return;
 
         if(isReady)
-            led.setState(true);
+            led.setPower(0.15);
         else
             turnLedOff();
     }
 
     public void turnLedOff() {
         if(!blockLed)
-            led.setState(false);
+            led.setPower(0);
     }
     
     public double[] getLauncherNeededAngleAndVelocity(double objectiveDistance) {
@@ -304,6 +307,10 @@ public class Launcher {
         // Gets alpha based on the natural exponential for a
         double alpha = 1 - Math.exp(-(dt / this.tau));
         this.valueFiltered = valueFiltered + alpha * (getVelocity() - valueFiltered);
+        if(Double.isNaN(this.valueFiltered)) {
+            this.valueFiltered = lastFilter;
+        }
+        lastFilter = valueFiltered;
     }
 
     public double[] PIDUpdate(double value, double target, double KP, double KD, double lastError, double lastI) {
@@ -354,7 +361,7 @@ public class Launcher {
         final double tauMax = 0.28;
         final double tauMin = 0.03;
         final double errorMax = 0.5;
-        
+
         // Feedforward
         // P = 0.128 * v - 0.002
         feedforward = 0.04203 * targetVelocity - 0.00474;
@@ -367,10 +374,10 @@ public class Launcher {
         error = Math.abs(targetVelocity - currentVelocity);
 
         adaptFilter(error, tauMin, tauMax, errorMax);
-        
+
         updateLauncherVelocityAndRps();
 
-        
+
         // PID values based on the launcher velocity
         pidValues = PIDUpdate(currentVelocity, targetVelocity, 0.3, 0.09, lastError, lastI);
         correction = pidValues[0];

@@ -56,7 +56,7 @@ public class BlueAutonomousCloseMain extends OpMode {
     private final Pose startSecondCollect = new Pose(55, 61.6, Math.toRadians(185)); // 63
     private final Pose endSecondCollect = new Pose(16, 61.6, Math.toRadians(185));
     private final Pose startThirtyCollect = new Pose(53, 41.5, Math.toRadians(180)); // 41
-    private final Pose endThirtyCollect = new Pose(16, 41.5, Math.toRadians(180));
+    private final Pose endThirtyCollect = new Pose(17, 41.5, Math.toRadians(180));
     private final Pose finalPos = new Pose(50, 72, Math.toRadians(135));
 
 

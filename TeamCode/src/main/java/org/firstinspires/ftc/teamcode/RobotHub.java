@@ -29,7 +29,7 @@ public class RobotHub {
     public Servo leftServo;
     public Servo rightServo;
     public Limelight3A limelight;
-    public DigitalChannel led;
+    public DcMotor led;
     public static GoBildaPinpointDriver pinpoint;
 
     // Classes
@@ -75,9 +75,8 @@ public class RobotHub {
         leftServo = hardwareMap.get(Servo.class, "leftServo");
         rightServo = hardwareMap.get(Servo.class, "rightServo");
 
-        led = hardwareMap.get(DigitalChannel.class, "led");
+        led = hardwareMap.get(DcMotor.class, "led");
 
-        led.setMode(DigitalChannel.Mode.OUTPUT);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
 

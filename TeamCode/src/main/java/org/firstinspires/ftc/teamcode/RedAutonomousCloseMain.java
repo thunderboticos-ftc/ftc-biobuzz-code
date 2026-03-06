@@ -49,15 +49,15 @@ public class RedAutonomousCloseMain extends OpMode {
 
 
 
-    private final Pose startPose = new Pose(119.6, 126.65, Math.toRadians(37));
-    private final Pose shootPose = new Pose(95, 93, Math.toRadians(43));
-    private final Pose startFirstCollect = new Pose(91, 88, Math.toRadians(0));
-    private final Pose endFirstCollect = new Pose(123, 88, Math.toRadians(0)); // 90
-    private final Pose startSecondCollect = new Pose(91, 63, Math.toRadians(-5)); // 63
-    private final Pose endSecondCollect = new Pose(129, 63, Math.toRadians(-5));
-    private final Pose startThirtyCollect = new Pose(88, 41, Math.toRadians(0)); // 41
-    private final Pose endThirtyCollect = new Pose(128, 41, Math.toRadians(0));
-    private final Pose finalPos = new Pose(94, 72, Math.toRadians(-45));
+    private final Pose startPose = new Pose(116, 123, Math.toRadians(36));
+    private final Pose shootPose = new Pose(95, 93, Math.toRadians(45.75));
+    private final Pose startFirstCollect = new Pose(91, 84, Math.toRadians(0));
+    private final Pose endFirstCollect = new Pose(124, 84, Math.toRadians(0)); // 90
+    private final Pose startSecondCollect = new Pose(93.5, 55.8, Math.toRadians(-5)); // 63
+    private final Pose endSecondCollect = new Pose(131, 55.8, Math.toRadians(-5));
+    private final Pose startThirtyCollect = new Pose(88, 39, Math.toRadians(0)); // 41
+    private final Pose endThirtyCollect = new Pose(128, 39, Math.toRadians(0));
+    private final Pose finalPos = new Pose(90, 68, Math.toRadians(45));
 
 
 
@@ -182,7 +182,7 @@ public class RedAutonomousCloseMain extends OpMode {
                     }
 
                     if (waitForShoot.getElapsedTimeSeconds() > timeForShoot) {
-                        RobotHub.launcher.shootArtefacts(true, 2.8);
+                        RobotHub.launcher.shootArtefacts(true, 2.6);
                     }
 
 
@@ -243,7 +243,7 @@ public class RedAutonomousCloseMain extends OpMode {
                 RobotHub.launcher.transportToShooter(false);
                 RobotHub.launcher.runAllIntake(true);
                 if(!follower.isBusy()) {
-                    follower.followPath(startSecondCollectPosToEndSecondCollectPos, 0.7, false);
+                    follower.followPath(startSecondCollectPosToEndSecondCollectPos, 0.6, false);
                     setPathState(PathState.END_SECOND_COLLECT_TO_START_SECOND_COLLECT);
                 }
 

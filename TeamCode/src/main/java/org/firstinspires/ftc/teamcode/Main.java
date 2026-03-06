@@ -29,8 +29,6 @@ public class Main extends LinearOpMode {
         RobotHub.reset();
         robotHub = RobotHub.getInstance(hardwareMap);
 
-        robotHub.led.setState(false);
-
         mapx = new Mapx(hardwareMap);
         robotMemory = RobotMemory.INSTANCE;
         allianceSide = robotMemory.allianceSide;
@@ -47,7 +45,7 @@ public class Main extends LinearOpMode {
         while(opModeIsActive()) {
             gamepadController.moveUsingGamepad();
             gamepadController.launchUsingGamepad();
-            //gamepadController.absorbUsingGamepad();
+
             gamepadController.transportBallToLauncher();
             gamepadController.keyStatesUpdate();
             gamepadController.correctAngleForTargetUsingGamepad(telemetry);
@@ -68,24 +66,16 @@ public class Main extends LinearOpMode {
 
             RobotHub.limelightCam.valueFilter();
 
-            telemetry.addData("CamFilter", RobotHub.limelightCam.valueFiltered);
-            telemetry.addData("Cam", RobotHub.limelightCam.getAprilTagDistance());
-            telemetry.addData("DistanceMapx", mapx.getGoalDistance(allianceSide));
-            telemetry.addData("Alliance", allianceSide);
-
             RobotHub.pinpoint.update();
 
             mapx.update();
 
 
-            telemetry.addData("XM", mapx.positionMeters[0]);
-            telemetry.addData("YM", mapx.positionMeters[1]);
-            telemetry.addData("XI", mapx.positionInches[0]);
-            telemetry.addData("YI", mapx.positionInches[1]);
-            telemetry.addData("H", mapx.heading);
+            telemetry.addData("Alliance", allianceSide);
+
+            telemetry.addData("Launcher Velocity", RobotHub.launcher.getVelocity());
+            telemetry.addData("Launcher Velocity Filtered", RobotHub.launcher.valueFiltered);
             telemetry.update();
-
-
         }
     }
 }
