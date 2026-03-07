@@ -33,13 +33,8 @@ public class BlueAutonomousFarMain extends OpMode {
 
 
     private enum PathState {
-        START_POS_TO_SHOOT_POS,
-        SHOOT_PRELOAD,
-        START_FIRST_COLLECT_TO_END_FIRST_COLLECT,
-        END_FIRST_COLLECT_TO_SHOOT_POS,
-        END_SECOND_COLLECT_TO_START_SECOND_COLLECT,
-        START_SECOND_COLLECT_TO_END_SECOND_COLLECT,
-        START_SECOND_COLLECT_TO_SHOOT_POS,
+        START_POS_TO_FINAL_POS,
+        STOPED
 
     }
 
@@ -47,76 +42,21 @@ public class BlueAutonomousFarMain extends OpMode {
 
 
 
-    private final Pose startPose = new Pose(56.25, 7.75, Math.toRadians(90));
-    private final Pose shootPose = new Pose(57.4, 15.35, Math.toRadians(114.5));
-    private final Pose startFirstCollect = new Pose(53, 38, Math.toRadians(180)); // 53 41
-    private final Pose endFirstCollect = new Pose(16, 38, Math.toRadians(180)); // 16 41
-    private final Pose startSecondCollect = new Pose(53, 60.75, Math.toRadians(185));
-    private final Pose endSecondCollect = new Pose(15, 60.75, Math.toRadians(185));
-    private final Pose startThirtyCollect = new Pose(53, 85.5, Math.toRadians(185)); // 53 90
-    private final Pose endThirtyCollect = new Pose(21, 85.5, Math.toRadians(185)); // 21 90
-    private final Pose finalPos = new Pose(20, 20, Math.toRadians(135));
+    private final Pose startPose = new Pose(56.25, 7, Math.toRadians(90));
+    private final Pose finalPos = new Pose(39, 8, Math.toRadians(90));
 
 
 
 
-    private PathChain startPosToShootPos;
-    private PathChain shootPosToStartFirstCollectPos;
-    private PathChain startFirstCollectPosToEndFirstCollectPos;
-    private PathChain endFirstCollectPosToShootPos;
-    private PathChain shootPosToStartSecondCollectPos;
-    private PathChain startSecondCollectPosToEndSecondCollectPos;
-    private PathChain endSecondCollectPosToStartSecondCollectPos;
-    private PathChain startSecondCollectPosToShootPos;
-    private PathChain shootPosToFinalPos;
+    private PathChain startPosToFinalPos;
 
 
     public void buildPaths() {
         // Put in coordinates for starting pose > ending pose
 
-        startPosToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(startPose, shootPose))
-                .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
-                .build();
-
-        shootPosToStartFirstCollectPos = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, startFirstCollect))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), startFirstCollect.getHeading())
-                .build();
-
-        startFirstCollectPosToEndFirstCollectPos = follower.pathBuilder()
-                .addPath(new BezierLine(startFirstCollect, endFirstCollect))
-                .setLinearHeadingInterpolation(startFirstCollect.getHeading(), endFirstCollect.getHeading())
-                .build();
-
-        endFirstCollectPosToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(endFirstCollect, shootPose))
-                .setLinearHeadingInterpolation(endFirstCollect.getHeading(), shootPose.getHeading())
-                .build();
-
-        shootPosToStartSecondCollectPos = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, startSecondCollect))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), startSecondCollect.getHeading())
-                .build();
-
-        startSecondCollectPosToEndSecondCollectPos = follower.pathBuilder()
-                .addPath(new BezierLine(startSecondCollect, endSecondCollect))
-                .setLinearHeadingInterpolation(startSecondCollect.getHeading(), endSecondCollect.getHeading())
-                .build();
-
-        endSecondCollectPosToStartSecondCollectPos = follower.pathBuilder()
-                .addPath(new BezierLine(endSecondCollect, startSecondCollect))
-                .setLinearHeadingInterpolation(endSecondCollect.getHeading(), startSecondCollect.getHeading())
-                .build();
-
-        startSecondCollectPosToShootPos = follower.pathBuilder()
-                .addPath(new BezierLine(startSecondCollect, shootPose))
-                .setLinearHeadingInterpolation(startSecondCollect.getHeading(), shootPose.getHeading())
-                .build();
-
-        shootPosToFinalPos = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, finalPos))
-                .setLinearHeadingInterpolation(shootPose.getHeading(), finalPos.getHeading())
+        startPosToFinalPos = follower.pathBuilder()
+                .addPath(new BezierLine(startPose, finalPos))
+                .setLinearHeadingInterpolation(startPose.getHeading(), finalPos.getHeading())
                 .build();
     }
 
@@ -129,124 +69,16 @@ public class BlueAutonomousFarMain extends OpMode {
 
     private void statePathUpdate() {
         switch(pathState) {
-            case START_POS_TO_SHOOT_POS:
+            case START_POS_TO_FINAL_POS:
                 // Going to shootPos
 
-                follower.followPath(startPosToShootPos, true);
-                setPathState(PathState.SHOOT_PRELOAD);
-                waitForShoot.resetTimer();
+                follower.followPath(startPosToFinalPos, false);
+                setPathState(pathState.STOPED);
 
                 break;
 
-            case SHOOT_PRELOAD:
-                if(!follower.isBusy()) {
-                    if(waitForShoot.getElapsedTimeSeconds() > 1)
-                        RobotHub.launcher.runIntakeAndMidtake(false);
-
-                    switch(cycle) {
-                        case 0:
-                            timeForShoot = 4;
-                            break;
-
-                        case 1:
-                            timeForShoot = 4;
-                            break;
-
-                        case 2:
-                            timeForShoot = 4;
-                            break;
-
-                        case 3:
-                            timeForShoot = 2.75;
-                            break;
-
-                    }
-
-                    if (waitForShoot.getElapsedTimeSeconds() > timeForShoot) {
-                        RobotHub.launcher.shootArtefacts(true, 3.25);
-                    }
-
-
-                    if(RobotHub.launcher.shootsPerTime >= 5) {
-                        RobotHub.launcher.shootArtefacts(false);
-                        RobotHub.launcher.transportToShooter(false);
-
-                        cycle++;
-
-                        switch(cycle) {
-                            case 1:
-                                follower.followPath(shootPosToStartFirstCollectPos, 0.6, false);
-                                setPathState(PathState.START_FIRST_COLLECT_TO_END_FIRST_COLLECT);
-                                break;
-                            case 2:
-                                follower.followPath(shootPosToStartSecondCollectPos, false);
-                                setPathState(PathState.START_SECOND_COLLECT_TO_END_SECOND_COLLECT);
-                                break;
-
-                            case 3:
-                                follower.followPath(shootPosToFinalPos, false);
-                                break;
-
-
-                            default:
-                                break;
-                        }
-                    }
-                }
-
+            case STOPED:
                 break;
-
-            case START_FIRST_COLLECT_TO_END_FIRST_COLLECT:
-                RobotHub.launcher.transportToShooter(false);
-                RobotHub.launcher.runAllIntake(true);
-                if(!follower.isBusy()) {
-                    follower.followPath(startFirstCollectPosToEndFirstCollectPos, 0.8, false);
-                    setPathState(PathState.END_FIRST_COLLECT_TO_SHOOT_POS);
-                }
-
-                break;
-
-            case END_FIRST_COLLECT_TO_SHOOT_POS:
-                RobotHub.launcher.transportToShooter(false);
-                RobotHub.launcher.runAllIntake(true);
-                if(!follower.isBusy()) {
-                    follower.followPath(endFirstCollectPosToShootPos, true);
-                    setPathState(PathState.SHOOT_PRELOAD);
-                    waitForShoot.resetTimer();
-                }
-                break;
-
-            case START_SECOND_COLLECT_TO_END_SECOND_COLLECT:
-                RobotHub.launcher.transportToShooter(false);
-                RobotHub.launcher.runAllIntake(true);
-                if(!follower.isBusy()) {
-                    follower.followPath(startSecondCollectPosToEndSecondCollectPos, 0.7, false);
-                    setPathState(PathState.END_SECOND_COLLECT_TO_START_SECOND_COLLECT);
-                }
-
-                break;
-
-            case END_SECOND_COLLECT_TO_START_SECOND_COLLECT:
-                RobotHub.launcher.transportToShooter(false);
-                RobotHub.launcher.runAllIntake(true);
-                if(!follower.isBusy()) {
-                    follower.followPath(endSecondCollectPosToStartSecondCollectPos, 1, false);
-                    setPathState(PathState.START_SECOND_COLLECT_TO_SHOOT_POS);
-                }
-
-                break;
-
-            case START_SECOND_COLLECT_TO_SHOOT_POS:
-                RobotHub.launcher.transportToShooter(false);
-                RobotHub.launcher.runAllIntake(true);
-                if(!follower.isBusy()) {
-                    follower.followPath(startSecondCollectPosToShootPos, 1, true);
-                    setPathState(PathState.SHOOT_PRELOAD);
-                    waitForShoot.resetTimer();
-                }
-
-                break;
-
         }
     }
 
@@ -263,7 +95,7 @@ public class BlueAutonomousFarMain extends OpMode {
 
     @Override
     public void init() {
-        pathState = PathState.START_POS_TO_SHOOT_POS;
+        pathState = PathState.START_POS_TO_FINAL_POS;
         pathTimer = new Timer();
         opModeTimer = new Timer();
         waitForShoot = new Timer();
@@ -303,14 +135,5 @@ public class BlueAutonomousFarMain extends OpMode {
         statePathUpdate();
         robotMemory.autoFinalPose = follower.getPose();
         mapx.update();
-
-        //RobotHub.launcher.setVelocityPIDFOp(12.47);
-        RobotHub.limelightCam.valueFilter();
-
-        RobotHub.launcher.setVelocityBasedOnMapx(0, mapx, true, telemetry);
-
-        //RobotHub.launcher.setVelocityBasedOnCam(true, RobotHub.limelightCam);
-
-        telemetry.addData("", RobotHub.limelightCam.valueFiltered);
     }
 }
