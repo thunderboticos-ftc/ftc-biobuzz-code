@@ -1,21 +1,19 @@
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.subsystem;
 
-import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.follower.Follower;
+
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.hardware.ControlHub;
+
 
 public class Movement {
     // Variables Initialization
-
 
     // HardwareMap
     private final DcMotorEx motorLeftFront;
@@ -100,36 +98,6 @@ public class Movement {
         
         resetEncoders();
     }
-    
-    public void correctRobotAngleForTarget(double power, double acceptableAngleVariation, Cam cam,  Telemetry telemetry) {
-        // Get aprilTag tx value;
-        double txValue = cam.getAprilTagResults()[0];
-
-        if(txValue == -100) {
-            return;
-        }
-
-        double target = 3.5;
-
-
-        double correctionTargetAngle;
-
-
-        double[] pidValuesTargetAngle;
-
-        pidValuesTargetAngle = PIDUpdate(txValue, target, 0.02, 0.001, lastErrorTargetAngle, lastITargetAngle);
-
-        correctionTargetAngle = pidValuesTargetAngle[0];
-        lastErrorTargetAngle = pidValuesTargetAngle[1];
-        lastITargetAngle = pidValuesTargetAngle[2];
-
-        telemetry.addData("tx", txValue);
-
-        runMotors(-correctionTargetAngle,
-                correctionTargetAngle,
-                -correctionTargetAngle,
-                correctionTargetAngle);
-    } 
 
     public void moveByVector(double[] vector, double turn, double power) {
         // Get the x and y axis

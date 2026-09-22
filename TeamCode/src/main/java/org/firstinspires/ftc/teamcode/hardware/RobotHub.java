@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -9,7 +8,10 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.subsystem.Cam;
+import org.firstinspires.ftc.teamcode.subsystem.Launcher;
+import org.firstinspires.ftc.teamcode.subsystem.Movement;
+import org.firstinspires.ftc.teamcode.subsystem.Odometry;
 
 
 public class RobotHub {
@@ -26,8 +28,12 @@ public class RobotHub {
     public DcMotorEx launcherMotor;
     public DcMotor intakeMotor;
     public DcMotor midtakeMotor;
+
+
     public Servo leftServo;
     public Servo rightServo;
+
+    public  Servo testeServo;
     public Limelight3A limelight;
     public DcMotor led;
     public static GoBildaPinpointDriver pinpoint;
@@ -36,8 +42,8 @@ public class RobotHub {
     public static Cam limelightCam;
     public static Movement movement;
     public static ControlHub controlHub;
-    public static Launcher launcher;
     public Odometry odometry;
+    public static Launcher launcher;
 
     // Constants
     private final double X_POD_OFFSET_MM, Y_POD_OFFSET_MM;
@@ -47,18 +53,18 @@ public class RobotHub {
         X_POD_OFFSET_MM = 142;
         Y_POD_OFFSET_MM = 90.427;
 
-        pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        // pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
-        pinpoint.setOffsets(X_POD_OFFSET_MM, Y_POD_OFFSET_MM, DistanceUnit.MM);
+        // pinpoint.setOffsets(X_POD_OFFSET_MM, Y_POD_OFFSET_MM, DistanceUnit.MM);
 
-        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD);
+        // pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_SWINGARM_POD);
 
-        pinpoint.setEncoderDirections(
-                GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD
-        );
+        // pinpoint.setEncoderDirections(
+        //         GoBildaPinpointDriver.EncoderDirection.FORWARD,
+        //         GoBildaPinpointDriver.EncoderDirection.FORWARD
+        // );
 
-        pinpoint.resetPosAndIMU();
+        // pinpoint.resetPosAndIMU();
 
         // Defining motors and sensors
         imu = hardwareMap.get(IMU.class, "imu");
@@ -68,26 +74,28 @@ public class RobotHub {
         motorLeftBack = hardwareMap.get(DcMotorEx.class, "motorLeftBack");
         motorRightBack = hardwareMap.get(DcMotorEx.class, "motorRightBack");
 
-        launcherMotor = hardwareMap.get(DcMotorEx.class, "launcher");
-        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
-        midtakeMotor = hardwareMap.get(DcMotor.class, "midtakeMotor");
+        // launcherMotor = hardwareMap.get(DcMotorEx.class, "launcher");
+        intakeMotor = hardwareMap.get(DcMotor.class, "intake");
+        // midtakeMotor = hardwareMap.get(DcMotor.class, "midtakeMotor");
 
-        leftServo = hardwareMap.get(Servo.class, "leftServo");
-        rightServo = hardwareMap.get(Servo.class, "rightServo");
+        // leftServo = hardwareMap.get(Servo.class, "leftServo");
+        // rightServo = hardwareMap.get(Servo.class, "rightServo");
+        testeServo = hardwareMap.get(Servo.class, "testeServo");
 
-        led = hardwareMap.get(DcMotor.class, "led");
+        // led = hardwareMap.get(DcMotor.class, "led");
 
 
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        // limelight = hardwareMap.get(Limelight3A.class, "limelight");
 
 
         // Initializing util classes
-        limelightCam = new Cam(limelight);
-        controlHub = new ControlHub(imu);
+        // limelightCam = new Cam(limelight);
+        // controlHub = new ControlHub(imu);
         
-        odometry = new Odometry(pinpoint);
-        launcher = new Launcher(launcherMotor, intakeMotor, midtakeMotor, leftServo, rightServo, led);
-        movement = new Movement(motorLeftFront, motorRightFront, motorLeftBack, motorRightBack, odometry, controlHub, pinpoint);
+        // odometry = new Odometry(pinpoint);
+        // movement = new Movement(motorLeftFront, motorRightFront, motorLeftBack, motorRightBack, odometry, controlHub, pinpoint);
+
+        launcher = new Launcher(launcherMotor);
 
         instance = this;
     }
